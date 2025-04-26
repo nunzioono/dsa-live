@@ -21,19 +21,19 @@ const codeReducer = (state: LiveEditorState, action: CodeAction): LiveEditorStat
   switch (action.type) {
     case 'UPDATE_CODE':
       return { ...state, code: action.payload };
-    case 'UPDATE_SELECTED_OPTION':
-      return {
-        ...state,
-        selectedOptions: {
-          [action.payload[0]]: action.payload[1],
-        },
-      };
+    // case 'UPDATE_SELECTED_OPTION':
+    //   return {
+    //     ...state,
+    //     selectedOptions: {
+    //       [action.payload[0]]: action.payload[1],
+    //     },
+    //   };
     default:
       return state;
   }
 };
 
-const LiveEditorContextProvider = ({initialState, children}: {initialState: LiveEditorState, children:ReactNode}) => {
+const LiveEditorContextProvider = ({initialState, children}: {initialState: LiveEditorState, children: ReactNode}) => {
   const [state, dispatch] = useReducer(codeReducer, initialState);
 
   const updateSelectedOption = (name: string, value: ConfigurationOption[]) => {

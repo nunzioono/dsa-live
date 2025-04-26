@@ -24,6 +24,7 @@
     "cmdk": "^1.1.1",
     "framer-motion": "^12.7.4",
     "lucide-react": "^0.501.0",
+    "prettier": "^3.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.1.0",
     "react-zoom-pan-pinch": "^3.7.0",

@@ -1,60 +1,41 @@
-import LiveEditorContextProvider, { LiveEditorContext, LiveEditorContextProps } from '@/context/Editor';
+import { LiveEditorContext } from '@/context/Editor';
 import { SelectWithPopover } from './SelectWithPopover';
 import { Label } from './ui/label';
 import { useContext } from 'react';
+import { Editor } from '@monaco-editor/react';
 
 export type ConfigurationOption = {
   label: string;
   value: any;
   algorithms?: ConfigurationOption[];
   algorithm?: string;
-}
+};
 
 export type ConfigurationsType = {
-  [name: string]: ConfigurationOption[]
+  [name: string]: ConfigurationOption[];
 };
 
 export type LiveEditorState = {
   code: string;
   options: ConfigurationsType;
-  selectedOptions: ConfigurationsType;
+  selectedOptions: Map<string, ConfigurationOption[]>;
 };
 
-interface LiveEditorProps {
-  options: ConfigurationsType
-}
-
-const LiveEditor: React.FC<LiveEditorProps> = ({options}) => {
-  const selected = Object.keys(options).reduce((acc, key) => {
-    const values = options[key].map((option) => option.value);
-    let selectedValue: ConfigurationOption = values[0];
-    acc.set(key, selectedValue);
-    if (selectedValue.algorithms) {
-      selectedValue = selectedValue.algorithms[0]; // Select the first algorithm by defaul
-      acc.set("Algorithms", selectedValue);
-    }
-    return acc;
-  }, new Map());
-  const initialState: LiveEditorState = {
-    code: "",
-    options: options,
-    selectedOptions: selected,
-  };
-
+const LiveEditor = () => {
   return (
-    <LiveEditorContextProvider initialState={initialState}>
-      <div className="flex flex-col h-screen w-screen">
-        <Header>
-          <HeaderItem name="Data Structures" />
-        </Header>
-        <Body>
-          <CodeFrame/>
-          <AlgoVisualizer/>
-        </Body>
-      </div>
-    </LiveEditorContextProvider>
+    <div className="flex flex-col h-screen w-screen">
+      <Header>
+        <HeaderItem name="Data Structures" />
+        <HeaderItem name="Algorithms" />
+        <HeaderItem name="Delay" />
+      </Header>
+      <Body>
+        <CodeFrame />
+        <AlgoVisualizer />
+      </Body>
+    </div>
   );
-}
+};
 
 function Header({ children }: { children: React.ReactNode }) {
   return (
@@ -66,19 +47,21 @@ function Header({ children }: { children: React.ReactNode }) {
 
 function HeaderItem({ name }: { name: string }) {
   const { codeState, updateSelectedOption } = useContext(LiveEditorContext) || {};
-  const { selectedOptions } = codeState || {};
-  const selected = selectedOptions?.[name] || [];
-  const options = codeState?.options?.[name] || [];
+  if (!codeState || !updateSelectedOption) throw new Error("LiveEditorContext must be used within LiveEditorContextProvider");
+
+  const { selectedOptions } = codeState;
+  const selected = selectedOptions.get(name) || [];
+  const options = codeState.options[name] || [];
 
   return (
-    <div className='flex flex-col md:flex-row indeterminate:items-center'>
+    <div className="flex flex-col md:flex-row indeterminate:items-center">
       <Label className="text-sm font-semibold text-muted-foreground me-2">
         {name}:
       </Label>
       <SelectWithPopover
         name={name}
         options={options}
-        selected={selected!}
+        selected={selected}
         onValueChange={updateSelectedOption!}
       />
     </div>
@@ -94,21 +77,41 @@ function Body({ children }: { children: React.ReactNode }) {
 }
 
 function CodeFrame() {
-  const emptyState: LiveEditorContextProps = { codeState: { code: "", options: {}, selectedOptions: {} }, updateSelectedOption: () => {}, updateCode: () => {} };
-  const { codeState }: LiveEditorContextProps = useContext(LiveEditorContext) || emptyState;
-  const { selectedOptions } = codeState || {};
+  const { codeState } = useContext(LiveEditorContext) || {};
+  if (!codeState) throw new Error("LiveEditorContext must be used within LiveEditorContextProvider");
 
-return (<div className="flex-1 bg-amber-700">
-    <iframe
-      srcDoc={JSON.stringify(selectedOptions?.Algorithms?.[0]) || ''}
+  const { code } = codeState;
+
+  function handleEditorWillMount(monaco: any) {
+    monaco.editor.defineTheme('myCustomTheme', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: 'comment', foreground: '90A959', fontStyle: 'italic' },
+        { token: 'keyword', foreground: 'F3A712' },
+        { token: 'number', foreground: 'EC7F20' },
+        { token: 'string', foreground: 'E4572E' },
+      ],
+      colors: {
+        'editor.background': '#151B2E',
+      }
+    });
+  }
+
+  return (
+    <Editor
+      height="100%"
+      width="50%"
+      defaultLanguage="javascript"
+      defaultValue={code}
+      theme="myCustomTheme"
+      beforeMount={handleEditorWillMount}
     />
-  </div>);
+  );
 }
 
 function AlgoVisualizer() {
-  return (<div className="flex-1">
-    </div>
-  );
+  return <div className="flex-1"></div>;
 }
 
 export default LiveEditor;
