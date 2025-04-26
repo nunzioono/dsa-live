@@ -2,16 +2,18 @@ import React from 'react';
 import { Command, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { ConfigurationOption } from './LiveEditor';
 
 interface SelectProps {
-  selected: string[];
-  options: { label: string; value: string }[];
-  onChange: (value: string) => void;
+  name: string;
+  options: ConfigurationOption[];
+  selected: ConfigurationOption[];
+  onChange: (name: string, value: ConfigurationOption[]) => void;
 }
 
-const Select: React.FC<SelectProps> = ({ selected, options, onChange }) => {
-  const toggleSelect = (value: string) => {
-      onChange(value); // If already selected, remove it
+const Select: React.FC<SelectProps> = ({ name, selected, options, onChange }) => {
+  const toggleSelect = (value: ConfigurationOption) => {
+      onChange(name, [...selected, value]); // If already selected, remove it
   };
 
   return (
@@ -21,12 +23,12 @@ const Select: React.FC<SelectProps> = ({ selected, options, onChange }) => {
         <CommandList>
           {options.map((option) => (
             <CommandItem
-              key={option.value}
-              onSelect={() => toggleSelect(option.value)}
+              key={option.label}
+              onSelect={() => toggleSelect(option)}
             >
               <Checkbox
                 className="mr-2"
-                checked={selected.includes(option.value)}
+                checked={selected.includes(option)}
               />
               <Label className="cursor-pointer">{option.label}</Label>
             </CommandItem>
