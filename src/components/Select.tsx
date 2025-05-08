@@ -12,8 +12,8 @@ interface SelectProps {
 }
 
 const Select: React.FC<SelectProps> = ({ name, selected, options, onChange }) => {
-  const toggleSelect = (value: ConfigurationOption) => {
-      onChange(name, [...selected, value]); // If already selected, remove it
+  const toggleSelect = (value: ConfigurationOption[]) => {
+      onChange(name, value); // If already selected, remove it
   };
 
   return (
@@ -24,11 +24,18 @@ const Select: React.FC<SelectProps> = ({ name, selected, options, onChange }) =>
           {options.map((option) => (
             <CommandItem
               key={option.label}
-              onSelect={() => toggleSelect(option)}
+              onSelect={() => {
+                if (!selected.includes(option.value)) {
+                  toggleSelect([...selected, option])
+                } else {
+                  const newSelected = selected.filter((el) => el !== option.value);
+                  toggleSelect(newSelected);
+                }
+              }}
             >
               <Checkbox
                 className="mr-2"
-                checked={selected.includes(option)}
+                checked={selected.includes(option.value) || selected.includes(option)}
               />
               <Label className="cursor-pointer">{option.label}</Label>
             </CommandItem>

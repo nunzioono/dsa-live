@@ -16,7 +16,7 @@ export function SelectWithPopover({ name, options, selected, onValueChange }: Se
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-[200px] justify-start">
-          {selected.length > 0 ? selected.map(el=>el.label?JSON.stringify(el.label):el).join(', ') : 'Select examples'}
+          {selected.length > 0 ? selected.map(el=>el.label?el.label:el).join(', ').toString() : 'Select examples'}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[200px] p-0 z-50">

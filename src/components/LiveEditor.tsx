@@ -49,8 +49,11 @@ function HeaderItem({ name }: { name: string }) {
   const { codeState, updateSelectedOption } = useContext(LiveEditorContext) || {};
   if (!codeState || !updateSelectedOption) throw new Error("LiveEditorContext must be used within LiveEditorContextProvider");
 
+  console.log("codeState", codeState);
   const { selectedOptions } = codeState;
-  const selected = selectedOptions.get(name) || [];
+  if (!selectedOptions) throw new Error("LiveEditorContext must be used within LiveEditorContextProvider");
+  console.log("name", name);
+  const selected: ConfigurationOption[] = (selectedOptions && selectedOptions.get(name)) || new Array<ConfigurationOption>();
   const options = codeState.options[name] || [];
 
   return (

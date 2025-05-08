@@ -21,13 +21,15 @@ const codeReducer = (state: LiveEditorState, action: CodeAction): LiveEditorStat
   switch (action.type) {
     case 'UPDATE_CODE':
       return { ...state, code: action.payload };
-    // case 'UPDATE_SELECTED_OPTION':
-    //   return {
-    //     ...state,
-    //     selectedOptions: {
-    //       [action.payload[0]]: action.payload[1],
-    //     },
-    //   };
+    case 'UPDATE_SELECTED_OPTION':
+      let map = new Map(state.selectedOptions);
+      const [key, newValues] = action.payload;
+      if (map.has(key)) {
+        map.set(key, newValues);
+      } else {
+        map = new Map(map).set(key, newValues);
+      }
+      return { ...state, selectedOptions: map };
     default:
       return state;
   }
